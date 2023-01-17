@@ -1,6 +1,8 @@
 from contextlib import contextmanager
 from collections.abc import Generator
 from time import sleep
+from itertools import chain
+from typing import Optional
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,7 +12,6 @@ from selenium.common.exceptions import TimeoutException as SelTimeoutException
 
 from bs4 import BeautifulSoup
 
-import requests
 
 class SeleniumWB:
 
@@ -51,19 +52,29 @@ class SeleniumWB:
             table = WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.ID, 'effect'))
             )
-            self.driver.current_url
-            print('ok')
+            return self.extract_pic(vendor, brand)
+            
         except SelTimeoutException:
             print('Таблица не прогрузилась!')
 
-    def extract_pic(self, vendor: str, brand: str) -> None:
-        page = BeautifulSoup(self.driver.current_url, 'lxml')
-        table = page.find('div', id_='effect')
+            return None
+
+
+    def extract_pic(self, vendor: str, brand: str) -> Optional[str]:
+        page = BeautifulSoup(self.driver.page_source, 'lxml')
+        table = page.find('div', id='effect')
+        for row in chain(table.find_all('tr', class_='tr'), table.find_all('tr', class_='tr_sa')):
+            vendor_found, brand_found = row.find('td', class_='td2').text, row.find('td', class_='td3').text
+            if vendor_found == vendor and brand_found == brand:
+                pic_element = row.find('td', class_='td6')
+                if pic_element.a:
+                    return pic_element.a['href']
+        return None
 
 
 if __name__ == '__main__':
     with SeleniumWB.open_sel() as driver:
         driver.get_cite('https://itrade.forum-auto.ru/')
         driver.login('492963', '4fde77479d3bb97c')
-        driver.get_pic('12018754B', None)
+        driver.get_pic('12018754B', 'CORTECO')
         sleep(5)
