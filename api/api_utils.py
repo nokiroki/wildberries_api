@@ -230,21 +230,6 @@ class WbApi:
         print(f'Кол-во изменённых артикулов - {changed_cards}')
         print(f'Кол-во загруженных фоток - {uploaded_photo}')
 
-
-    def strip_cards(self, cards: list) -> bool:
-        cards_modify = cards.copy()
-        for card in cards_modify:
-            for char in card['characteristics']:
-                if 'Наименование' in char and len(char['Наименование']) > 60:
-                    char['Наименование'] = char['Наименование'][:60]
-        print(cards_modify)
-        r = self.session.post(
-            self.url + '/content/v1/cards/update',
-            json=cards_modify
-        )
-        print(r.json())
-        return r.status_code == 200
-
     def upload_photo(self, card_vendor: str, media: str) -> None:
         headers = {
             'X-Vendor-Code': card_vendor,
@@ -259,6 +244,16 @@ class WbApi:
             files=files
         )
         print(req.status_code)
+
+    def get_chars(self, vendor_list: list, save_dir: str, start_pos: int = 0, *args) -> list:
+        for i in tqdm(range(start_pos, len(vendor_list), 100), initial=start_pos, total=len(vendor_list) // 100):
+            ...
+        data = self.get_cards_by_vendors(vendor_list)
+        print(data)
+
+    # TODO
+    def get_prices(self) -> None:
+        ...
 
     def _close(self):
         self.session.close()

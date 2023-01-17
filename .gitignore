@@ -126,3 +126,5 @@ cython_debug/
 data/
 api/__pycache__/
 parser_wb/__pycache__/
+
+token.txt
