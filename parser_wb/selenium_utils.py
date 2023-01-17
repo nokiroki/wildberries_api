@@ -12,6 +12,8 @@ from selenium.common.exceptions import TimeoutException as SelTimeoutException
 
 from bs4 import BeautifulSoup
 
+from requests_utils import download_pic
+
 
 class SeleniumWB:
 
@@ -74,7 +76,9 @@ class SeleniumWB:
 
 if __name__ == '__main__':
     with SeleniumWB.open_sel() as driver:
-        driver.get_cite('https://itrade.forum-auto.ru/')
+        base_url = 'https://itrade.forum-auto.ru'
+        driver.get_cite(base_url)
         driver.login('492963', '4fde77479d3bb97c')
-        driver.get_pic('12018754B', 'CORTECO')
+        pic_url = driver.get_pic('12018754B', 'CORTECO')
+        download_pic(base_url + pic_url)
         sleep(5)
