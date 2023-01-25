@@ -150,8 +150,9 @@ class WbApi:
         answer.extend(skus)
         return answer
 
-    def analyze_cards(self, cards: list) -> Tuple[list, list]:
+    def analyze_cards(self, cards: list) -> Tuple[list, list, list]:
         cards_empty = []
+        normal_cards = []
         all_info = []
         for card in tqdm(cards, desc='Analyzing cards'):
             all_info.append(self.get_name_and_skus(card))
@@ -163,15 +164,16 @@ class WbApi:
             for char in card['characteristics']:
                 if 'Наименование' in char and len(char['Наименование']) > 60:
                     cards_empty.append(card)
-                    continue
+                    break
                 if 'Артикул производителя' in char:
                     is_vendor_cr = True
             if not is_vendor_cr:
                 cards_empty.append(card)
-                continue
+            else:
+                normal_cards.append(card)
 
         print(f'Всего найдено артикулов без габаритов - {len(cards_empty)}')
-        return all_info, cards_empty
+        return all_info, cards_empty, normal_cards
 
     def change_cards(self, cards: list) -> bool:
         sizes = [
@@ -196,6 +198,22 @@ class WbApi:
         r = self.session.post(
             self.url + '/content/v1/cards/update',
             json=cards_modify
+        )
+
+        return r.status_code == 200
+
+    def update_sizes(self, cards: list) -> bool:
+        for card in cards:
+            for char in card['characteristics']:
+                if 'Длина упаковки' in char:
+                    char['Длина упаковки'] = 30
+                elif 'Ширина упаковки' in char:
+                    char['Ширина упаковки'] = 15
+                elif 'Высота упаковки' in char:
+                    char['Высота упаковки'] = 10
+        r = self.session.post(
+            self.url + '/content/v1/cards/update',
+            json = cards
         )
 
         return r.status_code == 200
@@ -249,7 +267,27 @@ class WbApi:
         )
         print(req.status_code)
 
-    def get_chars(self, vendor_list: list, save_dir: str, start_pos: int = 0, save_every: int = 500, *args) -> list:
+    def raw_save(self, vendor_list: list, save_dir: str, start_pos: int = 0, save_every: int = 500) -> None:
+        all_data = []
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        counter = 1
+        for i in tqdm(range(start_pos, len(vendor_list), 100), initial=start_pos, total=len(vendor_list) // 100):
+            data = self.get_cards_by_vendors(vendor_list[i : i + 100])
+            all_data.extend(data)
+            
+            if len(all_data) >= save_every:
+                print('Saving...')
+                with open(os.path.join(save_dir, f'data{len(all_data)}_{counter}.pcl'), 'wb') as f:
+                    pickle.dump(all_data, f)
+                counter += 1
+                all_data.clear()
+        if all_data:
+            print('Saving...')
+            with open(os.path.join(save_dir, f'data{len(all_data)}_{counter}.pcl'), 'wb') as f:
+                pickle.dump(all_data, f)
+
+    def get_chars(self, vendor_list: list, save_dir: str, start_pos: int = 0, save_every: int = 500, *args) -> None:
         all_data = []
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
