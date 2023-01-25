@@ -31,4 +31,5 @@ if __name__ == '__main__':
         api_token = args.api_key
 
     with WbApi.create_wb_api(api_token) as wb_api:
-        wb_api.get_chars(['ZMS-021'])
+        vendor_list = pd.read_excel('data/vendors.xlsx')['Артику'].tolist()
+        wb_api.get_chars(vendor_list, 'data/test_data/')

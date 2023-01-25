@@ -5,10 +5,14 @@ import os
 from sys import maxsize
 import pickle
 from time import sleep
+import warnings
+warnings.filterwarnings('ignore')
 
 import requests
 
 from tqdm import tqdm
+
+import pandas as pd
 
 
 class WbApi:
@@ -245,11 +249,34 @@ class WbApi:
         )
         print(req.status_code)
 
-    def get_chars(self, vendor_list: list, save_dir: str, start_pos: int = 0, *args) -> list:
+    def get_chars(self, vendor_list: list, save_dir: str, start_pos: int = 0, save_every: int = 500, *args) -> list:
+        all_data = []
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        counter = 1
         for i in tqdm(range(start_pos, len(vendor_list), 100), initial=start_pos, total=len(vendor_list) // 100):
-            ...
-        data = self.get_cards_by_vendors(vendor_list)
-        print(data)
+            data = self.get_cards_by_vendors(vendor_list[i : i + 100])
+            for card in data:
+                temp_data = {}
+                temp_data['Артикул'] = card['vendorCode']
+                temp_data['Баркод'] = card['sizes'][0]['skus'][0]
+                for char in card['characteristics']:
+                    name_char = list(char.keys())[0]
+                    if isinstance(char[name_char], list):
+                        val_char = char[name_char][0]
+                    else:
+                        val_char = char[name_char]
+                    temp_data[name_char] = val_char
+                all_data.append(temp_data.copy())
+            if len(all_data) >= save_every:
+                print('Saving...')
+                pd.DataFrame(all_data).to_csv(os.path.join(save_dir, f'data{len(all_data)}_{counter}.csv'), index=False)
+                counter += 1
+                all_data.clear()
+        if all_data:
+            print('Saving')
+            pd.DataFrame(all_data).to_csv(os.path.join(save_dir, f'data{len(all_data)}_{counter}.csv'), index=False)
+        
 
     # TODO
     def get_prices(self) -> None:
