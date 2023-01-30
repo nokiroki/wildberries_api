@@ -26,9 +26,8 @@ def modify_cards(wb_api: WbApi, vendor_list: list, save_dir: str) -> None:
             data = pickle.load(f)
             all_vendors.extend(data)
     print(f'Всего артикулов - {len(all_vendors)}')
-    _, cards_to_modify = wb_api.analyze_cards(all_vendors)
-    for i in tqdm(range(0, len(cards_to_modify), 100)):
-        code = wb_api.change_cards(cards_to_modify[i : i + 100])
+    for i in tqdm(range(0, len(all_vendors), 100)):
+        code = wb_api.change_cards(all_vendors[i : i + 100], True)
         if not code:
             print('Warning')
 
@@ -71,4 +70,6 @@ if __name__ == '__main__':
     vendor_file_name = os.path.join(main_folder, config['Data']['vendor_file'])
     saving_dir = os.path.join(main_folder, config['Data']['save_folder'])
     with WbApi.create_wb_api(api_token) as wb_api:
-        save_table_with_cards(wb_api, vendor_file_name, config['Vendor_list']['vendor_name'], saving_dir)
+        vendors = pd.read_excel('data/new_vendors.xlsx')['Артикул продавца'].values.tolist()
+        modify_cards(wb_api, vendors, 'data/new_data')
+        # save_table_with_cards(wb_api, vendor_file_name, config['Vendor_list']['vendor_name'], saving_dir)

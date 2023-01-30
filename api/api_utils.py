@@ -14,6 +14,8 @@ from tqdm import tqdm
 
 import pandas as pd
 
+from .constants import *
+
 
 class WbApi:
 
@@ -175,45 +177,47 @@ class WbApi:
         print(f'Всего найдено артикулов без габаритов - {len(cards_empty)}')
         return all_info, cards_empty, normal_cards
 
-    def change_cards(self, cards: list) -> bool:
-        sizes = [
-            {'Длина упаковки': 30},
-            {'Ширина упаковки': 15},
-            {'Высота упаковки': 10}
-        ]
+    def change_cards(self, cards: list, make_default_sizes: bool = False) -> bool:
+        sizes = {LENGTH: 30, HEIGHT: 15, WIDTH: 10}
+        sizes_check = {LENGTH  : False, WIDTH   : False, HEIGHT  : False}
+
+        # Copying existing list
         cards_modify = cards.copy()
+
         for card in cards_modify:
-            new_char = sizes.copy()
-            new_char.extend(card['characteristics'])
-            card['characteristics'] = new_char
             is_vendor_cr = False
             for char in card['characteristics']:
-                if 'Наименование' in char and len(char['Наименование']) > 60:
-                    char['Наименование'] = char['Наименование'][:58]
-                if 'Артикул производителя' in char:
+                if NAME in char and len(char[NAME]) > 60:
+                    char[NAME] = char[NAME][:58]
+                
+                elif VENDOR in char:
                     is_vendor_cr = True
+                
+                elif LENGTH in char:
+                    sizes_check[LENGTH] = True
+                    if make_default_sizes:
+                        char[LENGTH] = sizes[LENGTH]
+
+                elif WIDTH in char:
+                    sizes_check[WIDTH] = True
+                    if make_default_sizes:
+                        char[WIDTH] = sizes[WIDTH]
+
+                elif HEIGHT in char:
+                    sizes_check[HEIGHT] = True
+                    if make_default_sizes:
+                        char[HEIGHT] = sizes[HEIGHT]
+
             if not is_vendor_cr:
                 card['characteristics'].append({'Артикул производителя': card['vendorCode']})
+            
+            for size, flag in sizes_check.items():
+                if not flag:
+                    card['characteristics'].append({size: sizes[size]})
 
         r = self.session.post(
             self.url + '/content/v1/cards/update',
             json=cards_modify
-        )
-
-        return r.status_code == 200
-
-    def update_sizes(self, cards: list) -> bool:
-        for card in cards:
-            for char in card['characteristics']:
-                if 'Длина упаковки' in char:
-                    char['Длина упаковки'] = 30
-                elif 'Ширина упаковки' in char:
-                    char['Ширина упаковки'] = 15
-                elif 'Высота упаковки' in char:
-                    char['Высота упаковки'] = 10
-        r = self.session.post(
-            self.url + '/content/v1/cards/update',
-            json = cards
         )
 
         return r.status_code == 200
