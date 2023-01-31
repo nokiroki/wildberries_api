@@ -312,12 +312,12 @@ class WbApi:
                 all_data.append(temp_data.copy())
             if len(all_data) >= save_every:
                 print('Saving...')
-                pd.DataFrame(all_data).to_csv(os.path.join(save_dir, f'data{len(all_data)}_{counter}.csv'), index=False)
+                pd.DataFrame(all_data).to_excel(os.path.join(save_dir, f'data{len(all_data)}_{counter}.xlsx'), index=False)
                 counter += 1
                 all_data.clear()
         if all_data:
             print('Saving')
-            pd.DataFrame(all_data).to_csv(os.path.join(save_dir, f'data{len(all_data)}_{counter}.csv'), index=False)
+            pd.DataFrame(all_data).to_excel(os.path.join(save_dir, f'data{len(all_data)}_{counter}.xlsx'), index=False)
         
 
     # TODO
