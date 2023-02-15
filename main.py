@@ -2,7 +2,7 @@ import os
 import argparse
 from configparser import ConfigParser
 
-from wbapi import WbApi, save_table_with_cards, modify_cards
+from wbapi import WbApi, save_table_with_cards, modify_cards, save_prices
 
 
 def parse_args() -> argparse.Namespace:
@@ -12,7 +12,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         '-m',
         '--mode',
-        choices=('save', 'modify'),
+        choices=('save', 'modify', 'get_prices'),
         dest='mode',
         help='launch mode',
         default='save'
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     else:
         api_token = args.api_key
 
-
+    print(api_token)
     main_folder = config['Data']['main_data_folder']
     vendor_file_name = os.path.join(main_folder, config['Data']['vendor_file'])
     saving_dir = os.path.join(main_folder, config['Data']['save_folder'])
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 saving_dir,
                 int(config['Saving']['save_every'])
             )
-        else:
+        elif args.mode == 'modify':
             modify_cards(
                 wb_api,
                 vendor_file_name,
@@ -63,3 +63,5 @@ if __name__ == '__main__':
                 saving_dir,
                 args.make_default_sizes
             )
+        elif args.mode == 'get_prices':
+            save_prices(wb_api, saving_dir)

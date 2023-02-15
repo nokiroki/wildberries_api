@@ -118,6 +118,20 @@ class WbApi:
 
         return all_vendors
 
+    def get_prices(self) -> list:
+        params = {
+            'quantity': 0
+        }
+        res = self.session.get(
+            self.url + '/public/api/v1/info/',
+            params=params
+        )
+
+        print(res.status_code)
+        res_json = res.json()
+
+        return res_json 
+
     def get_cards_by_vendors(self, vendors: Union[List[str], str]) -> list:
         if isinstance(vendors, str):
             vendors = [vendors]
@@ -318,11 +332,6 @@ class WbApi:
         if all_data:
             print('Saving')
             pd.DataFrame(all_data).to_excel(os.path.join(save_dir, f'data{len(all_data)}_{counter}.xlsx'), index=False)
-        
-
-    # TODO
-    def get_prices(self) -> None:
-        ...
 
     def _close(self):
         self.session.close()

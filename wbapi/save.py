@@ -13,3 +13,8 @@ def save_table_with_cards(wb_api: WbApi,
     else:
         vendors = pd.read_csv(vendor_file)[column_name].tolist()
     wb_api.get_chars(vendors, save_dir, save_every=save_every)
+
+#TODO ....
+def save_prices(wb_api: WbApi, save_dir: str) -> None:
+    a = wb_api.get_prices()
+    print(a)
