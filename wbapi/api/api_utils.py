@@ -123,11 +123,10 @@ class WbApi:
             'quantity': 0
         }
         res = self.session.get(
-            self.url + '/public/api/v1/info/',
+            self.url + '/public/api/v1/info',
             params=params
         )
 
-        print(res.status_code)
         res_json = res.json()
 
         return res_json 

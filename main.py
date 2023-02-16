@@ -40,11 +40,12 @@ if __name__ == '__main__':
     else:
         api_token = args.api_key
 
-    print(api_token)
     main_folder = config['Data']['main_data_folder']
     vendor_file_name = os.path.join(main_folder, config['Data']['vendor_file'])
     saving_dir = os.path.join(main_folder, config['Data']['save_folder'])
 
+    if not os.path.exists(saving_dir):
+        os.mkdir(saving_dir)
 
     with WbApi.create_wb_api(api_token) as wb_api:
         if args.mode == 'save':
