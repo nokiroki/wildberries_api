@@ -2,7 +2,13 @@ import os
 import argparse
 from configparser import ConfigParser
 
-from wbapi import WbApi, save_table_with_cards, modify_cards, save_prices
+from wbapi import (
+    WbApi,
+    save_table_with_cards,
+    modify_cards,
+    save_prices,
+    upload_photos
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -12,7 +18,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         '-m',
         '--mode',
-        choices=('save', 'modify', 'get_prices'),
+        choices=('save', 'modify', 'get_prices', 'upload_images'),
         dest='mode',
         help='launch mode',
         default='save'
@@ -22,6 +28,13 @@ def parse_args() -> argparse.Namespace:
         dest='make_default_sizes',
         action='store_false',
         help='If present, program will not change existing sizes (in "modify" mode)'
+    )
+    parser.add_argument(
+        '-g',
+        '--global_path',
+        dest='is_global_path',
+        action='store_true',
+        help='If present, program will consider images path name as their global name (in "upload_images" mode)'
     )
 
     return parser.parse_args()
@@ -43,6 +56,8 @@ if __name__ == '__main__':
     main_folder = config['Data']['main_data_folder']
     vendor_file_name = os.path.join(main_folder, config['Data']['vendor_file'])
     saving_dir = os.path.join(main_folder, config['Data']['save_folder'])
+    image_folder = os.path.join(main_folder, config['Data']['image_folder'])
+    image_vendor_file_name = os.path.join(main_folder, config['Data']['image_vendor_file'])
 
     if not os.path.exists(saving_dir):
         os.mkdir(saving_dir)
@@ -66,3 +81,11 @@ if __name__ == '__main__':
             )
         elif args.mode == 'get_prices':
             save_prices(wb_api, saving_dir)
+
+        elif args.mode == 'upload_images':
+            upload_photos(
+                wb_api,
+                image_vendor_file_name,
+                args.is_global_path,
+                image_folder
+            )

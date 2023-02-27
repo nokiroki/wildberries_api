@@ -1,10 +1,12 @@
 from typing import List, Union, Optional, Tuple
+import io
 from collections.abc import Generator
 from contextlib import contextmanager
 import os
 from sys import maxsize
 import pickle
 from time import sleep
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -269,20 +271,30 @@ class WbApi:
         print(f'Кол-во изменённых артикулов - {changed_cards}')
         print(f'Кол-во загруженных фоток - {uploaded_photo}')
 
-    def upload_photo(self, card_vendor: str, media: str) -> None:
+    def upload_photo(self, card_vendor: str, media: Union[str, io.BytesIO]) -> None:
         headers = {
             'X-Vendor-Code': card_vendor,
             'X-Photo-Number': '1'
         }
         files = {
-            'uploadfile': open(media, 'rb')
+            'uploadfile': open(media, 'rb') if isinstance(media, str) else media.getbuffer()
         }
         req = self.session.post(
             self.url + '/content/v1/media/file',
             headers=headers,
             files=files
         )
-        print(req.status_code)
+
+    def delete_photos(self, card_vendor: str) -> None:
+        json = {
+            'vendorCode': card_vendor,
+            'data': list()
+        }
+
+        req = self.session.post(
+            self.url + '/content/v1/media/save',
+            json=json
+        )
 
     def raw_save(self, vendor_list: list, save_dir: str, start_pos: int = 0, save_every: int = 500) -> None:
         all_data = []
