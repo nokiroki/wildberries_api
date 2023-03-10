@@ -31,3 +31,17 @@ def modify_cards(
         code = wb_api.change_cards(all_vendors[i : i + 100], make_default_sizes)
         if not code:
             print('Warning')
+
+def modify_vendors(
+        wb_api: WbApi,
+        vendor_file: str
+) -> None:
+    vendor_list = pd.read_excel(vendor_file)
+    vendor_list = vendor_list.values.T
+    vendors_id = vendor_list[0].tolist()
+    vendors_new = vendor_list[1].tolist()
+
+    wb_api.change_suppliers_vendors(
+        wb_api.get_cards_by_vendors(vendors_id),
+        vendors_new
+    )

@@ -236,6 +236,22 @@ class WbApi:
         )
 
         return r.status_code == 200
+    
+
+    def change_suppliers_vendors(self, cards: list, vendors_new: list) -> bool:
+
+        cards_modify = cards.copy()
+        for card, vendor in zip(cards, vendors_new):
+            for char in card['characteristics']:
+                if 'Артикул производителя' in char:
+                    card['characteristics']['Артикул производителя'] = vendor
+        
+        r = self.session.post(
+            self.url + '/content/v1/cards/update',
+            json=cards_modify
+        )
+
+        return r.status_code == 200
 
     def change_cards2(self, cards: list, media: str) -> None:
         cards_modify = cards.copy()
