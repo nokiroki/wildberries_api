@@ -7,7 +7,8 @@ from wbapi import (
     save_table_with_cards,
     modify_cards,
     save_prices,
-    upload_photos
+    upload_photos,
+    modify_vendors
 )
 
 
@@ -18,7 +19,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         '-m',
         '--mode',
-        choices=('save', 'modify', 'get_prices', 'upload_images'),
+        choices=('save', 'modify', 'get_prices', 'upload_images', 'modify_vendors'),
         dest='mode',
         help='launch mode',
         default='save'
@@ -88,4 +89,10 @@ if __name__ == '__main__':
                 image_vendor_file_name,
                 args.is_global_path,
                 image_folder
+            )
+
+        elif args.mode == 'modify_vendors':
+            modify_vendors(
+                wb_api,
+                vendor_file_name
             )

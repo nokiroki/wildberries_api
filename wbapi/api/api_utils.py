@@ -244,7 +244,7 @@ class WbApi:
         for card, vendor in zip(cards, vendors_new):
             for char in card['characteristics']:
                 if 'Артикул производителя' in char:
-                    card['characteristics']['Артикул производителя'] = vendor
+                    char['Артикул производителя'] = [vendor]
         
         r = self.session.post(
             self.url + '/content/v1/cards/update',

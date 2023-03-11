@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 import pandas as pd
 
-from .api import WbApi
+from .  api import WbApi
 
 def modify_cards(
         wb_api: WbApi,
