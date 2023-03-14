@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 import pandas as pd
 
-from .  api import WbApi
+from .api import WbApi
 
 def modify_cards(
         wb_api: WbApi,
@@ -41,7 +41,9 @@ def modify_vendors(
     vendors_id = vendor_list[0].tolist()
     vendors_new = vendor_list[1].tolist()
 
-    wb_api.change_suppliers_vendors(
-        wb_api.get_cards_by_vendors(vendors_id),
-        vendors_new
-    )
+    for i in tqdm(range(0, len(vendors_id), 100)):
+
+        wb_api.change_suppliers_vendors(
+            wb_api.get_cards_by_vendors(vendors_id[i : i + 100]),
+            vendors_new[i : i + 100]
+        )

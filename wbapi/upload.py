@@ -28,6 +28,7 @@ def upload_photos(
         image = Image.open(
             image_file if is_global_path else os.path.join(images_folder, image_file)
         )
+        image = image.convert('RGB')
         resized_image = resize_image(image)
         if resized_image is not None:
             image_reader = io.BytesIO()
