@@ -238,13 +238,15 @@ class WbApi:
         return r.status_code == 200
     
 
-    def change_suppliers_vendors(self, cards: list, vendors_new: list) -> bool:
+    def change_suppliers_vendors(self, cards: list, vendors_keys: dict) -> bool:
 
         cards_modify = cards.copy()
-        for card, vendor in zip(cards, vendors_new):
+        for card in cards:
+            vendor = vendors_keys[card['vendorCode']]
             for char in card['characteristics']:
                 if 'Артикул производителя' in char:
                     char['Артикул производителя'] = [vendor]
+                    break
         
         r = self.session.post(
             self.url + '/content/v1/cards/update',

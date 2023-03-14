@@ -42,8 +42,8 @@ def modify_vendors(
     vendors_new = vendor_list[1].tolist()
 
     for i in tqdm(range(0, len(vendors_id), 100)):
-
+        vendors_keys = dict(zip(vendors_id[i : i + 100], vendors_new[i : i + 100]))
         wb_api.change_suppliers_vendors(
             wb_api.get_cards_by_vendors(vendors_id[i : i + 100]),
-            vendors_new[i : i + 100]
+            vendors_keys
         )
