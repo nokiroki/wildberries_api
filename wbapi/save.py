@@ -22,4 +22,4 @@ def save_prices(wb_api: WbApi, save_dir: str, save_every: int = 900000) -> None:
     print(f'Total length - {len(prices)}')
     
     for i in range(0, len(prices), save_every):
-        pd.DataFrame(prices[i:i + save_every]).to_csv(os.path.join(save_dir, f'data_{save_every}_{i // save_every}.csv'), index=False)
+        pd.DataFrame(prices[i:i + save_every]).to_excel(os.path.join(save_dir, f'data_{save_every}_{i // save_every}.xlsx'), index=False)
