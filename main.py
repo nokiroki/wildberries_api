@@ -8,7 +8,8 @@ from wbapi import (
     modify_cards,
     save_prices,
     upload_photos,
-    modify_vendors
+    modify_vendors,
+    modify_name_description
 )
 
 
@@ -19,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         '-m',
         '--mode',
-        choices=('save', 'modify', 'get_prices', 'upload_images', 'modify_vendors'),
+        choices=('save', 'modify', 'get_prices', 'upload_images', 'modify_vendors', 'modify_description'),
         dest='mode',
         help='launch mode',
         default='save'
@@ -93,6 +94,12 @@ if __name__ == '__main__':
 
         elif args.mode == 'modify_vendors':
             modify_vendors(
+                wb_api,
+                vendor_file_name
+            )
+        
+        elif args.mode == 'modify_description':
+            modify_name_description(
                 wb_api,
                 vendor_file_name
             )

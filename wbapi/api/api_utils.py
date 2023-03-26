@@ -241,7 +241,7 @@ class WbApi:
     def change_suppliers_vendors(self, cards: list, vendors_keys: dict) -> bool:
 
         cards_modify = cards.copy()
-        for card in cards:
+        for card in cards_modify:
             vendor = vendors_keys[card['vendorCode']]
             for char in card['characteristics']:
                 if 'Артикул производителя' in char:
@@ -252,6 +252,24 @@ class WbApi:
             self.url + '/content/v1/cards/update',
             json=cards_modify
         )
+
+        return r.status_code == 200
+
+    def change_name_description(self, cards: list, vendors_keys: dict) -> bool:
+        cards_modify = cards.copy()
+        for card in cards_modify:
+            name, description = vendors_keys[card['vendorCode']]
+            for char in card['characteristics']:
+                if 'Наименование' in char and name:
+                    char['Наименование'] = name
+                elif 'Описание' in char and description:
+                    char['Описание'] = description
+
+        r = self.session.post(
+            self.url + '/content/v1/cards/update',
+            json=cards_modify
+        )
+        
 
         return r.status_code == 200
 
@@ -302,6 +320,7 @@ class WbApi:
             headers=headers,
             files=files
         )
+        print(req.json if req.status_code == 200 else f'Bad response code - {req.status_code}')
 
     def delete_photos(self, card_vendor: str) -> None:
         json = {
