@@ -328,7 +328,7 @@ class WbApi:
 
     def upload_photo(self, card_vendor: str, media: Union[str, io.BytesIO]) -> None:
         headers = {
-            'X-Vendor-Code': card_vendor,
+            'X-Vendor-Code': card_vendor.encode('utf-8'),
             'X-Photo-Number': '1'
         }
         files = {

@@ -50,6 +50,8 @@ def modify_name_description(wb_api: WbApi, vendor_file: str) -> None:
     nd_list = nd_list.values.T
     vendors = nd_list[0].tolist()
     name_description = nd_list[1:].T.tolist()
+    if len(name_description[0]) == 1:
+        name_description = list(map(lambda x: (x, None), name_description))
 
     for i in tqdm(range(0, len(vendors), 100)):
         vendors_keys = dict(zip(vendors[i : i + 100], name_description[i : i + 100]))
