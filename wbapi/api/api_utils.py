@@ -272,6 +272,25 @@ class WbApi:
         
 
         return r.status_code == 200
+    
+    def add_nds(self, cards: Union[dict, list[dict]]) -> bool:
+        if isinstance(cards, str):
+            cards = [cards]
+        cards_modify = cards.copy()
+        for card in cards_modify:
+            card['characteristics'].append({'Ставка НДС': ['20']})
+        
+        r = self.session.post(
+            self.url + '/content/v1/cards/update',
+            json=cards_modify
+        )
+
+        if not r.status_code == 200:
+            print(r)
+            print(r.json())
+
+        return r.status_code == 200
+
 
     def change_cards2(self, cards: list, media: str) -> None:
         cards_modify = cards.copy()
