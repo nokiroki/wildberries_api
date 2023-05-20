@@ -242,6 +242,8 @@ class WbApi:
 
         cards_modify = cards.copy()
         for card in cards_modify:
+            if card['vendorCode'] not in vendors_keys:
+                continue
             vendor = vendors_keys[card['vendorCode']]
             for char in card['characteristics']:
                 if 'Артикул производителя' in char:
