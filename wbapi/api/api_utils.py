@@ -250,8 +250,8 @@ class WbApi:
 
             sizes = {
                 LENGTH: sizes_list[0],
-                WIDTH: sizes_list[0],
-                HEIGHT: sizes_list[0]
+                WIDTH: sizes_list[1],
+                HEIGHT: sizes_list[2]
             }
             sizes_check = {LENGTH: False, WIDTH: False, HEIGHT: False}
             for char in card['characteristics']:
@@ -271,6 +271,12 @@ class WbApi:
                 if not flag:
                     card['characteristics'].append({size: sizes[size]})
 
+        r = self.session.post(
+            self.url + '/content/v1/cards/update',
+            json=cards_modify
+        )
+
+        return r.status_code == 200
 
     def change_suppliers_vendors(self, cards: list, vendors_keys: dict) -> bool:
 
