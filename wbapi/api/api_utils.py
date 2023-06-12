@@ -194,7 +194,7 @@ class WbApi:
 
     def change_cards(self, cards: list, make_default_sizes: bool = False) -> bool:
         sizes = {LENGTH: 30, HEIGHT: 15, WIDTH: 10}
-        sizes_check = {LENGTH  : False, WIDTH   : False, HEIGHT  : False}
+        sizes_check = {LENGTH: False, WIDTH: False, HEIGHT: False}
 
         # Copying existing list
         cards_modify = cards.copy()
@@ -237,6 +237,40 @@ class WbApi:
 
         return r.status_code == 200
     
+
+    def change_sizes(self, cards: list, vendors_keys: dict) -> bool:
+
+        # Copying existing list
+        cards_modify = cards.copy()
+
+        for card in cards_modify:
+            if card['vendorCode'] not in vendors_keys:
+                continue
+            sizes_list = vendors_keys[card['vendorCode']]
+
+            sizes = {
+                LENGTH: sizes_list[0],
+                WIDTH: sizes_list[0],
+                HEIGHT: sizes_list[0]
+            }
+            sizes_check = {LENGTH: False, WIDTH: False, HEIGHT: False}
+            for char in card['characteristics']:
+                if LENGTH in char:
+                    sizes_check[LENGTH] = True
+                    char[LENGTH] = sizes[LENGTH]
+
+                elif WIDTH in char:
+                    sizes_check[WIDTH] = True
+                    char[WIDTH] = sizes[WIDTH]
+
+                elif HEIGHT in char:
+                    sizes_check[HEIGHT] = True
+                    char[HEIGHT] = sizes[HEIGHT]
+            
+            for size, flag in sizes_check.items():
+                if not flag:
+                    card['characteristics'].append({size: sizes[size]})
+
 
     def change_suppliers_vendors(self, cards: list, vendors_keys: dict) -> bool:
 

@@ -32,6 +32,19 @@ def modify_cards(
         if not code:
             print('Warning')
 
+def modify_sizes(wb_api: WbApi, vendor_file: str) -> None:
+    vendor_list = pd.read_excel(vendor_file)
+    vendor_list = vendor_list.values.T
+    vendors_id = vendor_list[0].tolist()
+    sizes = vendor_list[1:].T.tolist()
+
+    for i in tqdm(range(0, len(vendor_list), 100)):
+        vendors_keys = dict(zip(vendors_id[i : i + 100], sizes[i : i + 100]))
+        wb_api.change_sizes(
+            wb_api.get_cards_by_vendors(vendors_id),
+            vendors_keys
+        )
+
 def modify_vendors(wb_api: WbApi, vendor_file: str) -> None:
     vendor_list = pd.read_excel(vendor_file)
     vendor_list = vendor_list.values.T
