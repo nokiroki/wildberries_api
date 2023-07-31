@@ -38,10 +38,10 @@ def modify_sizes(wb_api: WbApi, vendor_file: str) -> None:
     vendors_id = vendor_list[0].tolist()
     sizes = vendor_list[1:].T.tolist()
 
-    for i in tqdm(range(0, len(vendor_list), 100)):
+    for i in tqdm(range(0, len(vendors_id), 100)):
         vendors_keys = dict(zip(vendors_id[i : i + 100], sizes[i : i + 100]))
         wb_api.change_sizes(
-            wb_api.get_cards_by_vendors(vendors_id),
+            wb_api.get_cards_by_vendors(vendors_id[i : i + 100]),
             vendors_keys
         )
 

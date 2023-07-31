@@ -146,6 +146,7 @@ class WbApi:
             )
             status_code = r.status_code
             if status_code != 200:
+                print(r.text)
                 print(f'Ошибка. Код ответа - {status_code}. Повторный запрос...')
                 sleep(5)
             else:
