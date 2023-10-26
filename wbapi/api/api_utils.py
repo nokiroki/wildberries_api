@@ -447,6 +447,8 @@ class WbApi:
     def upload_cards(self, cards: pd.DataFrame) -> tuple[int, dict[str, Any]]:
         if "Ставка НДС" in cards.columns:
             cards["Ставка НДС"] = cards["Ставка НДС"].astype(str)
+        if "Комплектация" in cards.columns:
+            cards["Комплектация"] = cards["Комплектация"].astype(str)
         if "Предмет" not in cards.columns:
             cards["Предмет"] = "Автозапчасти"
         for chunk in tqdm(np.array_split(cards, (cards.shape[0] // 1000) + 1)):
