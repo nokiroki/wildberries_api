@@ -1,4 +1,4 @@
-from typing import List, Union, Optional, Tuple
+from typing import List, Union, Optional, Tuple, Any
 import io
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -14,6 +14,7 @@ import requests
 
 from tqdm import tqdm
 
+import numpy as np
 import pandas as pd
 
 from .constants import *
@@ -442,6 +443,46 @@ class WbApi:
         if all_data:
             print('Saving')
             pd.DataFrame(all_data).to_excel(os.path.join(save_dir, f'data{len(all_data)}_{counter}.xlsx'), index=False)
+    
+    def upload_cards(self, cards: pd.DataFrame) -> tuple[int, dict[str, Any]]:
+        if "Ставка НДС" in cards.columns:
+            cards["Ставка НДС"] = cards["Ставка НДС"].astype(str)
+        if "Предмет" not in cards.columns:
+            cards["Предмет"] = "Автозапчасти"
+        for chunk in tqdm(np.array_split(cards, (cards.shape[0] // 1000) + 1)):
+            chunk: pd.DataFrame
+            flag = True
+            while flag:
+                flag = False
+                cards_array = []
+                for _, row in chunk.iterrows():
+                    card_dict = {}
+                    card_dict["vendorCode"] = row["vendorCode"]
+                    card_dict["sizes"] = [{"price": row["price"], "skus": [row["skus"]]}]
+                    card_dict["characteristics"] = [
+                        {name: value} 
+                        for name, value in row.drop(["vendorCode", "price", "skus"]).items()
+                    ]
+                    cards_array.append([card_dict])
+                req = self.session.post(
+                    self.url + "/content/v1/cards/upload",
+                    json=cards_array
+                )
+
+                if req.status_code != 200:
+                    print(f"Bad status code. Additional check is required")
+                    if (
+                        req.status_code == 400 and
+                        req.json()["errorText"] == "content.api.errors.source.vcUsedInOtherCards"
+                    ):
+                        print(f"Problem with existed vendors, retrying")
+                        sleep(2)
+                        flag = True
+                        chunk.drop(index=chunk[
+                            chunk["vendorCode"].isin(req.json()["additionalErrors"].keys())
+                        ].index, inplace=True)
+        
+        return req.status_code, req.json()
 
     def _close(self):
         self.session.close()

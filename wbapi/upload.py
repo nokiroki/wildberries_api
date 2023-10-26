@@ -36,3 +36,13 @@ def upload_photos(
             wb_api.upload_photo(vendor, image_reader)
         else:
             wb_api.upload_photo(vendor, os.path.join(images_folder, default_image_file))
+
+
+def upload_cards(
+    wb_api: WbApi,
+    vendor_file: str
+):
+    ext = vendor_file.split('.')[1]
+    df = pd.read_excel(vendor_file) if ext == "xlsx" else pd.read_csv(vendor_file)
+    
+    wb_api.upload_cards(df)

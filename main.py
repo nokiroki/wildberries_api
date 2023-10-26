@@ -8,6 +8,7 @@ from wbapi import (
     modify_cards,
     save_prices,
     upload_photos,
+    upload_cards,
     modify_vendors,
     modify_name_description,
     modify_sizes
@@ -26,6 +27,7 @@ def parse_args() -> argparse.Namespace:
             'modify',
             'get_prices',
             'upload_images',
+            'upload_cards',
             'modify_vendors',
             'modify_sizes',
             'modify_description'
@@ -92,29 +94,13 @@ if __name__ == '__main__':
             )
         elif args.mode == 'get_prices':
             save_prices(wb_api, saving_dir)
-
         elif args.mode == 'upload_images':
-            upload_photos(
-                wb_api,
-                image_vendor_file_name,
-                args.is_global_path,
-                image_folder
-            )
-
+            upload_photos(wb_api, image_vendor_file_name, args.is_global_path, image_folder)
+        elif args.mode == 'upload_cards':
+            upload_cards(wb_api, vendor_file_name)
         elif args.mode == 'modify_vendors':
-            modify_vendors(
-                wb_api,
-                vendor_file_name
-            )
-        
+            modify_vendors(wb_api, vendor_file_name)
         elif args.mode == 'modify_sizes':
-            modify_sizes(
-                wb_api,
-                vendor_file_name
-            )
-        
+            modify_sizes(wb_api, vendor_file_name)
         elif args.mode == 'modify_description':
-            modify_name_description(
-                wb_api,
-                vendor_file_name
-            )
+            modify_name_description(wb_api, vendor_file_name)
