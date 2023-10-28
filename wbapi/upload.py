@@ -2,6 +2,8 @@ from typing import Optional
 import os
 import io
 
+import requests
+
 import pandas as pd
 
 from PIL import Image
@@ -44,5 +46,11 @@ def upload_cards(
 ):
     ext = vendor_file.split('.')[1]
     df = pd.read_excel(vendor_file) if ext == "xlsx" else pd.read_csv(vendor_file)
+    links_images = None
+    if "image" in df:
+        links_images = df["image"].values
     
     wb_api.upload_cards(df)
+    for vendor, image_link in zip(df["vendorCode"].values, links_images):
+        image_stream = requests.get(image_link).content
+        wb_api.upload_photo(vendor, image_stream)

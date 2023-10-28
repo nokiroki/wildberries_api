@@ -383,7 +383,8 @@ class WbApi:
             headers=headers,
             files=files
         )
-        print(req.json if req.status_code == 200 else f'Bad response code - {req.status_code}')
+        print(f"Vendor - {card_vendor}: ", end='')
+        print(req.json() if req.status_code == 200 else f'Bad response code - {req.status_code}')
 
     def delete_photos(self, card_vendor: str) -> None:
         json = {
@@ -470,7 +471,7 @@ class WbApi:
                     self.url + "/content/v1/cards/upload",
                     json=cards_array
                 )
-
+                sleep(1)
                 if req.status_code != 200:
                     print(f"Bad status code. Additional check is required")
                     if (
@@ -478,7 +479,6 @@ class WbApi:
                         req.json()["errorText"] == "content.api.errors.source.vcUsedInOtherCards"
                     ):
                         print(f"Problem with existed vendors, retrying")
-                        sleep(2)
                         flag = True
                         chunk.drop(index=chunk[
                             chunk["vendorCode"].isin(req.json()["additionalErrors"].keys())
