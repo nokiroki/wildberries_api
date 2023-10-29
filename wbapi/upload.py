@@ -52,5 +52,5 @@ def upload_cards(
     
     wb_api.upload_cards(df)
     for vendor, image_link in zip(df["vendorCode"].values, links_images):
-        image_stream = requests.get(image_link).content
+        image_stream = io.BytesIO(requests.get(image_link).content)
         wb_api.upload_photo(vendor, image_stream)
