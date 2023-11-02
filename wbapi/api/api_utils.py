@@ -452,7 +452,7 @@ class WbApi:
             cards["Комплектация"] = cards["Комплектация"].astype(str)
         if "Предмет" not in cards.columns:
             cards["Предмет"] = "Автозапчасти"
-        for chunk in tqdm(np.array_split(cards, (cards.shape[0] // 1000) + 1)):
+        for chunk in tqdm(np.array_split(cards, (cards.shape[0] // 100) + 1)):
             chunk: pd.DataFrame
             flag = True
             while flag:
@@ -471,7 +471,7 @@ class WbApi:
                     self.url + "/content/v1/cards/upload",
                     json=cards_array
                 )
-                sleep(1)
+                sleep(2)
                 if req.status_code != 200:
                     print(f"Bad status code. Additional check is required")
                     if (
