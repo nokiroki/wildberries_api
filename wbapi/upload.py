@@ -1,6 +1,7 @@
 from typing import Optional
 import os
 import io
+from time import time, sleep
 
 import requests
 
@@ -25,7 +26,9 @@ def upload_photos(
     else:
         df = pd.read_csv(vendor_file)
 
-    for vendor, image_file in df.iloc:
+    start_time = time()
+    time_delta = 0
+    for i, vendor, image_file in enumerate(df.iloc):
         wb_api.delete_photos(vendor)
         image = Image.open(
             image_file if is_global_path else os.path.join(images_folder, image_file)
@@ -38,7 +41,12 @@ def upload_photos(
             wb_api.upload_photo(vendor, image_reader)
         else:
             wb_api.upload_photo(vendor, os.path.join(images_folder, default_image_file))
-
+        time_delta += time() - start_time
+        if (i + 1) % 60 == 0:
+            if time_delta < 60:
+                sleep(60 - time_delta)
+            time_delta = 0
+            start_time = time()
 
 def upload_cards(
     wb_api: WbApi,
@@ -49,7 +57,7 @@ def upload_cards(
     links_images = None
     if "image" in df:
         links_images = df["image"].values
-    
+
     wb_api.upload_cards(df)
     if "image" in df:
         for vendor, image_link in zip(df["vendorCode"].values, links_images):
