@@ -28,7 +28,7 @@ def upload_photos(
 
     start_time = time()
     time_delta = 0
-    for i, vendor, image_file in enumerate(df.iloc):
+    for i, (vendor, image_file) in enumerate(df.iloc):
         wb_api.delete_photos(vendor)
         image = Image.open(
             image_file if is_global_path else os.path.join(images_folder, image_file)
