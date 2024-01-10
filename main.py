@@ -49,6 +49,20 @@ def parse_args() -> argparse.Namespace:
         action='store_true',
         help='If present, program will consider images path name as their global name (in "upload_images" mode)'
     )
+    parser.add_argument(
+        '-T',
+        '--images_time_delta',
+        dest='sleep_between',
+        default=0,
+        type=int
+    )
+    parser.add_argument(
+        '-L',
+        '--images_time_limit',
+        dest='time_limit',
+        default=-1,
+        type=int
+    )
 
     return parser.parse_args()
 
@@ -95,7 +109,14 @@ if __name__ == '__main__':
         elif args.mode == 'get_prices':
             save_prices(wb_api, saving_dir)
         elif args.mode == 'upload_images':
-            upload_photos(wb_api, image_vendor_file_name, args.is_global_path, image_folder)
+            upload_photos(
+                wb_api,
+                image_vendor_file_name,
+                args.is_global_path,
+                image_folder,
+                sleep_between=args.sleep_between,
+                limit_in_minute=args.time_limit
+            )
         elif args.mode == 'upload_cards':
             upload_cards(wb_api, vendor_file_name)
         elif args.mode == 'modify_vendors':

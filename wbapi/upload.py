@@ -18,7 +18,9 @@ def upload_photos(
     vendor_file: str,
     is_global_path: bool = True,
     images_folder: Optional[str] = None,
-    default_image_file: str = 'default.jpg'
+    default_image_file: str = 'default.jpg',
+    sleep_between: int = 0,
+    limit_in_minute: int = -1,
 ) -> None:
     ext = vendor_file.split('.')[1]
     if ext == 'xlsx':
@@ -41,10 +43,11 @@ def upload_photos(
             wb_api.upload_photo(vendor, image_reader)
         else:
             wb_api.upload_photo(vendor, os.path.join(images_folder, default_image_file))
+        sleep(sleep_between)
         time_delta += time() - start_time
-        if (i + 1) % 60 == 0:
-            if time_delta < 60:
-                sleep(60 - time_delta)
+        if limit_in_minute > 0 and (i + 1) % limit_in_minute == 0:
+            if time_delta < limit_in_minute:
+                sleep(limit_in_minute - time_delta)
             time_delta = 0
             start_time = time()
 
