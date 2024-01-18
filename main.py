@@ -96,7 +96,9 @@ if __name__ == '__main__':
                 vendor_file_name,
                 config['Vendor_list']['vendor_name'],
                 saving_dir,
-                int(config['Saving']['save_every'])
+                int(config['Saving']['save_every']),
+                sleep_between=args.sleep_between,
+                limit_in_minute=args.limit_in_minute
             )
         elif args.mode == 'modify':
             modify_cards(
@@ -122,6 +124,11 @@ if __name__ == '__main__':
         elif args.mode == 'modify_vendors':
             modify_vendors(wb_api, vendor_file_name)
         elif args.mode == 'modify_sizes':
-            modify_sizes(wb_api, vendor_file_name)
+            modify_sizes(
+                wb_api,
+                vendor_file_name,
+                sleep_between=args.sleep_between,
+                limit_in_minute=args.time_limit
+            )
         elif args.mode == 'modify_description':
             modify_name_description(wb_api, vendor_file_name)

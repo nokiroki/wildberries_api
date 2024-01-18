@@ -5,7 +5,7 @@ from contextlib import contextmanager
 import os
 from sys import maxsize
 import pickle
-from time import sleep
+from time import sleep, time
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -417,12 +417,27 @@ class WbApi:
             with open(os.path.join(save_dir, f'data{len(all_data)}_{counter}.pcl'), 'wb') as f:
                 pickle.dump(all_data, f)
 
-    def get_chars(self, vendor_list: list, save_dir: str, start_pos: int = 0, save_every: int = 500, *args) -> None:
+    def get_chars(
+        self,
+        vendor_list: list,
+        save_dir: str,
+        start_pos: int = 0,
+        save_every: int = 500,
+        sleep_between: int = 0,
+        limit_in_minute: int = -1,
+        *args
+    ) -> None:
         all_data = []
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         counter = 1
-        for i in tqdm(range(start_pos, len(vendor_list), 100), initial=start_pos, total=len(vendor_list) // 100):
+        start_time = time()
+        time_delta = 0
+        for i in tqdm(
+            range(start_pos, len(vendor_list), 100),
+            initial=start_pos,
+            total=len(vendor_list) // 100
+        ):
             data = self.get_cards_by_vendors(vendor_list[i : i + 100])
             for card in data:
                 temp_data = {}
@@ -441,6 +456,13 @@ class WbApi:
                 pd.DataFrame(all_data).to_excel(os.path.join(save_dir, f'data{len(all_data)}_{counter}.xlsx'), index=False)
                 counter += 1
                 all_data.clear()
+            sleep(sleep_between)
+            time_delta += time() - start_time
+            if limit_in_minute > 0 and (i + 1) % limit_in_minute == 0:
+                if time_delta < limit_in_minute:
+                    sleep(limit_in_minute - time_delta)
+                time_delta = 0
+                start_time = time()
         if all_data:
             print('Saving')
             pd.DataFrame(all_data).to_excel(os.path.join(save_dir, f'data{len(all_data)}_{counter}.xlsx'), index=False)

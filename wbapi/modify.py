@@ -1,5 +1,6 @@
 import os
 import pickle
+from time import sleep, time
 
 from tqdm import tqdm
 
@@ -32,18 +33,33 @@ def modify_cards(
         if not code:
             print('Warning')
 
-def modify_sizes(wb_api: WbApi, vendor_file: str) -> None:
+def modify_sizes(
+    wb_api: WbApi,
+    vendor_file: str,
+    sleep_between: int = 0,
+    limit_in_minute: int = -1
+) -> None:
     vendor_list = pd.read_excel(vendor_file)
     vendor_list = vendor_list.values.T
     vendors_id = vendor_list[0].tolist()
     sizes = vendor_list[1:].T.tolist()
 
+    start_time = time()
+    time_delta = 0
     for i in tqdm(range(0, len(vendors_id), 100)):
         vendors_keys = dict(zip(vendors_id[i : i + 100], sizes[i : i + 100]))
         wb_api.change_sizes(
             wb_api.get_cards_by_vendors(vendors_id[i : i + 100]),
             vendors_keys
         )
+
+        sleep(sleep_between)
+        time_delta += time() - start_time
+        if limit_in_minute > 0 and (i + 1) % limit_in_minute == 0:
+            if time_delta < limit_in_minute:
+                sleep(limit_in_minute - time_delta)
+            time_delta = 0
+            start_time = time()
 
 def modify_vendors(wb_api: WbApi, vendor_file: str) -> None:
     vendor_list = pd.read_excel(vendor_file)
