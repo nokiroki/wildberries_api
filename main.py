@@ -98,7 +98,7 @@ if __name__ == '__main__':
                 saving_dir,
                 int(config['Saving']['save_every']),
                 sleep_between=args.sleep_between,
-                limit_in_minute=args.limit_in_minute
+                limit_in_minute=args.time_limit
             )
         elif args.mode == 'modify':
             modify_cards(
