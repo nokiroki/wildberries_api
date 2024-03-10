@@ -11,6 +11,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import requests
+from urllib3.exceptions import HTTPError
 
 from tqdm import tqdm
 
@@ -438,7 +439,15 @@ class WbApi:
             initial=start_pos,
             total=len(vendor_list) // 100
         ):
-            data = self.get_cards_by_vendors(vendor_list[i : i + 100])
+            try:
+                data = self.get_cards_by_vendors(vendor_list[i : i + 100])
+            except HTTPError as e:
+                print(e.args[0])
+                if len(all_data) > 0:
+                    print('Saving...')
+                    pd.DataFrame(all_data).to_excel(os.path.join(save_dir, f'data{len(all_data)}_{counter}.xlsx'), index=False)
+                    counter += 1
+                raise e
             for card in data:
                 temp_data = {}
                 temp_data['Артикул'] = card['vendorCode']
